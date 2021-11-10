@@ -43,8 +43,7 @@ class TrainImageDataset(Dataset):
     def __len__(self):
         return len(self.files)
 
-
-x = TrainImageDataset("../dataset/VOC2012", crop_size=16, upscale_factor=4)
-train_dataloader = DataLoader(x, batch_size=5, shuffle=True, num_workers=8)
-x, y = next(iter(train_dataloader))
-print(x, y)
+# x = TrainImageDataset("../dataset/VOC2012", crop_size=16, upscale_factor=4)
+# train_dataloader = DataLoader(x, batch_size=5, shuffle=True, num_workers=8)
+# x, y = next(iter(train_dataloader))
+# print(x, y)

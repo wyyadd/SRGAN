@@ -15,7 +15,7 @@ class FeatureExtractor(nn.Module):
 
 class ResidualBlock(nn.Module):
     def __init__(self, in_features):
-        super(Generator, self).__init__()
+        super(ResidualBlock, self).__init__()
         self.res_block = nn.Sequential(
             nn.Conv2d(in_features, in_features, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(in_features),
