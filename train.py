@@ -2,6 +2,8 @@ import torch
 import srgan
 from torch.utils.data import DataLoader
 import dataset
+import matplotlib.pyplot as plt
+
 
 cuda = torch.cuda.is_available()
 device = 'cuda' if cuda else 'cpu'
@@ -40,8 +42,13 @@ ones = torch.ones(batch_size).to(device)
 zeros = torch.zeros(batch_size).to(device)
 
 
-def train_loop():
+def train_loop(epoch):
     print("-----start train----")
+    generator.train()
+    discriminator.train()
+    data_len = len(train_dataloader)
+    g_loss = []
+    d_loss = []
     for batch, (img_lr, img_hr) in enumerate(train_dataloader):
         img_lr, img_hr = img_lr.to(device), img_hr.to(device)
         # ---------------------
@@ -72,8 +79,26 @@ def train_loop():
         loss_D.backward()
         optimizer_D.step()
 
+        # ------------------------
+        # ----------log-----------
+        # ------------------------
+        if batch % 100 == 0:
+            g_loss.append(loss_G.item())
+            d_loss.append(loss_D.item())
+            print("epoch {}, G_loss: {:.6f}, D_loss: {:.6f}, {}/{}".format(epoch, loss_G.item(), loss_D.item(), batch,
+                                                                           data_len))
+
+
+def test_loop():
+    print("----start evaluate----")
+    generator.eval()
+    discriminator.eval()
+    with torch.no_grad():
+        pass
+
 
 if __name__ == '__main__':
     epoch = int(10)
     for i in range(1, epoch + 1):
-        train_loop()
+        train_loop(i)
+        test_loop()

@@ -7,7 +7,7 @@ class FeatureExtractor(nn.Module):
     def __init__(self):
         super(FeatureExtractor, self).__init__()
         vgg19_model = vgg19(pretrained=True)
-        self.feature_extractor = nn.Sequential(*list(vgg19_model.features.children())[:18])
+        self.feature_extractor = nn.Sequential(*list(vgg19_model.features.children())[:-1])
 
     def forward(self, img):
         return self.feature_extractor(img)
@@ -32,7 +32,7 @@ class UpsampleBLock(nn.Module):
     def __init__(self, up_scale):
         super(UpsampleBLock, self).__init__()
         self.upsampleBock = nn.Sequential(
-            nn.Conv2d(in_channels=64, out_channels=256, kernel_size=3, padding=1),
+            nn.Conv2d(in_channels=64, out_channels=256, kernel_size=3, stride=1, padding=1),
             nn.PixelShuffle(up_scale),
             nn.PReLU()
         )
@@ -50,7 +50,7 @@ class Generator(nn.Module):
 
         # Residual blocks
         res_blocks = []
-        for i in range(n_residual_blocks):
+        for _ in range(n_residual_blocks):
             res_blocks.append(ResidualBlock(64))
         self.res_blocks = nn.Sequential(*res_blocks)
 
@@ -65,7 +65,7 @@ class Generator(nn.Module):
         self.up_blocks = nn.Sequential(*up_blocks)
 
         # final cov
-        self.conv3 = nn.Sequential(nn.Conv2d(64, out_channels, kernel_size=9, stride=1, padding=4), nn.Tanh())
+        self.conv3 = nn.Conv2d(64, out_channels, kernel_size=9, stride=1, padding=4)
 
     def forward(self, x):
         out1 = self.conv1(x)
