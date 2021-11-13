@@ -33,8 +33,8 @@ optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=1e-4)
 # Tensor = torch.cuda.FloatTensor if cuda else torch.Tensor
 
 # data
-batch_size = 16
-train_dataset = dataset.TrainImageDataset("../dataset/VOC2012", crop_size=96, upscale_factor=4)
+batch_size = 32
+train_dataset = dataset.TrainImageDataset("../dataset/VOC2012", crop_size=88, upscale_factor=4)
 train_dataloader = DataLoader(train_dataset, batch_size, num_workers=8, shuffle=True)
 
 # Adversarial ground truths
@@ -101,4 +101,9 @@ if __name__ == '__main__':
     epoch = int(10)
     for i in range(1, epoch + 1):
         train_loop(i)
-        test_loop()
+        # test_loop()
+        if i == 5:
+            torch.save(generator, '../param/srGan_generator')
+            torch.save(discriminator, '../param/srGan_discriminator')
+    torch.save(generator, '../param/srGan_generator')
+    torch.save(discriminator, '../param/srGan_discriminator')
