@@ -65,7 +65,7 @@ class Generator(nn.Module):
         self.up_blocks = nn.Sequential(*up_blocks)
 
         # final cov
-        self.conv3 = nn.Conv2d(64, out_channels, kernel_size=9, stride=1, padding=4)
+        self.conv3 = nn.Sequential(nn.Conv2d(64, out_channels, kernel_size=9, stride=1, padding=4), nn.Tanh())
 
     def forward(self, x):
         out1 = self.conv1(x)

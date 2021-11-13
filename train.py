@@ -4,16 +4,15 @@ from torch.utils.data import DataLoader
 import dataset
 import matplotlib.pyplot as plt
 
-
 cuda = torch.cuda.is_available()
 device = 'cuda' if cuda else 'cpu'
 
 epoch = int(31)
 # generator and discriminator and feature_extractor
-# generator = srgan.Generator()
-generator = torch.load('../param/srGan_generator_epoch30.pth')
-# discriminator = srgan.Discriminator()
-discriminator = torch.load('../param/srGan_discriminator_epoch30.pth')
+generator = srgan.Generator()
+# generator = torch.load('../param/srGan_generator_epoch30.pth')
+discriminator = srgan.Discriminator()
+# discriminator = torch.load('../param/srGan_discriminator_epoch30.pth')
 feature_extractor = srgan.FeatureExtractor()
 
 # Set feature extractor to inference mode
@@ -63,21 +62,21 @@ def train_loop(train_epoch):
         loss_GAN = criterion_GAN(discriminator(img_sr), ones)
 
         # Content loss
-        gen_features = feature_extractor(img_sr)
+        gen_features = feature_extractor(img_sr.detach())
         real_features = feature_extractor(img_hr)
-        loss_content = criterion_content(gen_features, real_features.detach())
+        loss_content = criterion_content(img_sr, img_hr) + 0.006 * criterion_content(gen_features, real_features)
 
         # Total loss
         loss_G = loss_content + 1e-3 * loss_GAN
 
-        optimizer_G.zero_grad()
+        generator.zero_grad()
         loss_G.backward()
         optimizer_G.step()
         # -------------------------
         # ---train discriminator
         # -------------------------
         loss_D = criterion_GAN(discriminator(img_hr), ones) + criterion_GAN(discriminator(img_sr.detach()), zeros)
-        optimizer_D.zero_grad()
+        discriminator.zero_grad()
         loss_D.backward()
         optimizer_D.step()
 
@@ -87,7 +86,8 @@ def train_loop(train_epoch):
         if batch % 100 == 0:
             g_loss.append(loss_G.item())
             d_loss.append(loss_D.item())
-            print("epoch {}, G_loss: {:.6f}, D_loss: {:.6f}, {}/{}".format(train_epoch, loss_G.item(), loss_D.item(), batch,
+            print("epoch {}, G_loss: {:.6f}, D_loss: {:.6f}, {}/{}".format(train_epoch, loss_G.item(), loss_D.item(),
+                                                                           batch,
                                                                            data_len))
 
 
