@@ -1,4 +1,6 @@
 import glob
+
+import torch
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 from torchvision.transforms import Compose, RandomCrop, ToTensor, ToPILImage, CenterCrop, Resize, transforms, \
@@ -36,14 +38,12 @@ class TrainImageDataset(Dataset):
 
     def __getitem__(self, index):
         img = Image.open(self.files[index])
+        if ToTensor()(img).size()[1] < 96 or ToTensor()(img).size()[2] < 96:
+            print(self.files[index])
+            print(ToTensor()(img).size())
         img_hr = self.hr_transform(img)
         img_lr = self.lr_transform(img_hr)
         return img_lr, img_hr
 
     def __len__(self):
         return len(self.files)
-
-# x = TrainImageDataset("../dataset/VOC2012", crop_size=16, upscale_factor=4)
-# train_dataloader = DataLoader(x, batch_size=5, shuffle=True, num_workers=8)
-# x, y = next(iter(train_dataloader))
-# print(x, y)
